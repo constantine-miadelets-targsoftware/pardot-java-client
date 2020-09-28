@@ -17,6 +17,7 @@
 
 package com.darksci.pardot.api;
 
+import com.darksci.pardot.api.auth.external.ExternalTokenSource;
 import com.darksci.pardot.api.config.Configuration;
 import com.darksci.pardot.api.config.LoginType;
 import com.darksci.pardot.api.config.PasswordLoginCredentials;
@@ -36,6 +37,8 @@ import static com.darksci.pardot.api.config.LoginType.USERNAME_PASSWORD;
  */
 public class ConfigurationBuilder {
     private LoginType loginType;
+
+    private ExternalTokenSource externalTokenSource;
 
     // Configuration properties for username password login
     private String email;
@@ -102,6 +105,16 @@ public class ConfigurationBuilder {
         this.ssoClientId = Objects.requireNonNull(clientId);
         this.ssoClientSecret = Objects.requireNonNull(clientSecret);
         this.businessUnitId = Objects.requireNonNull(businessUnitId);
+        return this;
+    }
+
+    /**
+     * For configuring authenticating to the Pardot API using external token source.
+     * @param externalTokenSource External token source that acquires and refreshes Salesforce token.
+     * @return Builder instance.
+     */
+    public ConfigurationBuilder withExternalTokenSourceLogin(final ExternalTokenSource externalTokenSource) {
+        this.externalTokenSource = externalTokenSource;
         return this;
     }
 
@@ -268,6 +281,7 @@ public class ConfigurationBuilder {
         }
         PasswordLoginCredentials passwordLoginCredentials = null;
         SsoLoginCredentials ssoLoginCredentials = null;
+        ExternalTokenSource externalTokenSource = null;
 
         switch (loginType) {
             case SSO:
@@ -275,6 +289,9 @@ public class ConfigurationBuilder {
                 break;
             case USERNAME_PASSWORD:
                 passwordLoginCredentials = new PasswordLoginCredentials(email, password, userKey);
+                break;
+            case EXTERNAL_TOKEN:
+                externalTokenSource = this.externalTokenSource;
                 break;
             default:
                 throw new IllegalStateException("Undefined Login type!");
@@ -284,6 +301,7 @@ public class ConfigurationBuilder {
         return new Configuration(
             loginType,
             ssoLoginCredentials,
+            externalTokenSource,
             passwordLoginCredentials,
             proxyConfiguration,
             pardotApiHost,

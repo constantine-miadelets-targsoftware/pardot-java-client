@@ -295,6 +295,11 @@ public class HttpClientRestClient implements RestClient {
                 post.addHeader("Pardot-Business-Unit-Id", configuration.getSsoLoginCredentials().getBusinessUnitId());
             }
 
+            if (configuration.isUsingExternalTokenSourceAuthentication()) {
+                post.addHeader("Authorization", "Bearer " + configuration.getExternalTokenSource().getAccessToken());
+                post.addHeader("Pardot-Business-Unit-Id", configuration.getExternalTokenSource().getBusinessUnitId());
+            }
+
             // Debug logging
             logger.info("Executing request {} with {}", post.getRequestLine(), filterSensitiveParams(params));
 

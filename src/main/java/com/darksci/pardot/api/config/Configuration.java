@@ -18,6 +18,7 @@
 package com.darksci.pardot.api.config;
 
 import com.darksci.pardot.api.ConfigurationBuilder;
+import com.darksci.pardot.api.auth.external.ExternalTokenSource;
 import com.darksci.pardot.api.rest.interceptor.RequestInterceptor;
 
 import java.util.Objects;
@@ -30,6 +31,7 @@ public class Configuration {
     // Login Details.
     private final LoginType loginType;
     private final SsoLoginCredentials ssoLoginCredentials;
+    private final ExternalTokenSource externalTokenSource;
     private final PasswordLoginCredentials passwordLoginCredentials;
 
     // Proxy Configuration
@@ -80,6 +82,7 @@ public class Configuration {
         this(
             LoginType.USERNAME_PASSWORD,
             null,
+            null,
             passwordLoginCredentials,
             proxyConfiguration,
             pardotApiHost,
@@ -111,6 +114,7 @@ public class Configuration {
             LoginType.SSO,
             ssoLoginCredentials,
             null,
+            null,
             proxyConfiguration,
             pardotApiHost,
             pardotApiVersion,
@@ -135,6 +139,7 @@ public class Configuration {
     public Configuration(
         final LoginType loginType,
         final SsoLoginCredentials ssoLoginCredentials,
+        final ExternalTokenSource externalTokenSource,
         final PasswordLoginCredentials passwordLoginCredentials,
         final ProxyConfiguration proxyConfiguration,
         final String pardotApiHost,
@@ -144,6 +149,7 @@ public class Configuration {
 
         this.loginType = Objects.requireNonNull(loginType);
         this.ssoLoginCredentials = ssoLoginCredentials;
+        this.externalTokenSource = externalTokenSource;
         this.passwordLoginCredentials = passwordLoginCredentials;
         this.proxyConfiguration = Objects.requireNonNull(proxyConfiguration);
         this.pardotApiHost = Objects.requireNonNull(pardotApiHost);
@@ -160,6 +166,10 @@ public class Configuration {
         return LoginType.SSO == loginType;
     }
 
+    public boolean isUsingExternalTokenSourceAuthentication() {
+        return LoginType.EXTERNAL_TOKEN == loginType;
+    }
+
     public LoginType getLoginType() {
         return loginType;
     }
@@ -173,6 +183,13 @@ public class Configuration {
             throw new IllegalStateException("Cannot access SsoLoginCredentials if configured to use " + loginType + " authentication!");
         }
         return ssoLoginCredentials;
+    }
+
+    public ExternalTokenSource getExternalTokenSource() {
+        if (externalTokenSource == null) {
+            throw new IllegalStateException("Cannot access ExternalTokenSource if configured to use " + loginType + " authentication!");
+        }
+        return externalTokenSource;
     }
 
     /**

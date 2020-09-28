@@ -20,6 +20,7 @@ package com.darksci.pardot.api;
 import com.darksci.pardot.api.auth.PasswordSessionRefreshHandler;
 import com.darksci.pardot.api.auth.SessionRefreshHandler;
 import com.darksci.pardot.api.auth.SsoSessionRefreshHandler;
+import com.darksci.pardot.api.auth.external.ExternalSessionRefreshHandler;
 import com.darksci.pardot.api.config.Configuration;
 import com.darksci.pardot.api.parser.DeleteResponseParser;
 import com.darksci.pardot.api.parser.ErrorResponseParser;
@@ -251,6 +252,8 @@ public class PardotClient implements AutoCloseable {
             sessionRefreshHandler = new PasswordSessionRefreshHandler(configuration.getPasswordLoginCredentials(), this);
         } else if (configuration.isUsingSsoAuthentication()) {
             sessionRefreshHandler = new SsoSessionRefreshHandler(configuration.getSsoLoginCredentials(), this);
+        } else if (configuration.isUsingExternalTokenSourceAuthentication()) {
+            sessionRefreshHandler = new ExternalSessionRefreshHandler(configuration.getExternalTokenSource());
         } else {
             throw new IllegalStateException("Unhandled Authentication Type!");
         }
